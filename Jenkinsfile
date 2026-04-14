@@ -18,15 +18,17 @@ pipeline {
             }
         }
 
-        stage('Run Application') {
-            steps {
-                sh '''
-                export MOZ_HEADLESS=1
-                export DISPLAY=:99
-                mvn exec:java -Dexec.mainClass="com.example.App"
-                '''
-            }
-        }
+       stage('Run Application') {
+    steps {
+        sh '''
+        Xvfb :99 -screen 0 1024x768x24 &
+        export DISPLAY=:99
+        export MOZ_HEADLESS=1
+
+        mvn exec:java -Dexec.mainClass="com.example.App"
+        '''
+    }
+}
     }
 
     post {
