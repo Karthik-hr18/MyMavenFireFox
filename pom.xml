@@ -52,6 +52,7 @@
                     <mainClass>com.example.App</mainClass>
                 </configuration>
             </plugin>
+            
 
         </plugins>
     </build>

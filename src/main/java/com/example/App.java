@@ -9,33 +9,37 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import java.time.Duration;
 
 public class App {
 
     public static void main(String[] args) {
-        System.setProperty("webdriver.gecko.driver", "/usr/local/bin/geckodriver");
-        
 
-        // Headless Firefox for Jenkins
+        // OPTIONAL: You can REMOVE this line if geckodriver is in /usr/bin
+        System.setProperty("webdriver.gecko.driver", "/usr/bin/geckodriver");
+
+        // Firefox setup for Jenkins (HEADLESS + STABLE)
         FirefoxOptions options = new FirefoxOptions();
+        options.setBinary("/usr/bin/firefox");
 
-options.setBinary("/usr/bin/firefox"); // force correct binary
-options.addArguments("--headless");
+        // Headless mode
+        options.addArguments("--headless");
 
-//  VERY IMPORTANT for VM/Jenkins
-options.addArguments("--no-sandbox");
-options.addArguments("--disable-dev-shm-usage");
+        // Stability options for Jenkins / VM
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
 
-// disable GPU (important sometimes)
-options.addArguments("--disable-gpu");
+        // IMPORTANT FIX for marionette issues
+        options.addPreference("remote.active-protocols", 1);
 
-WebDriver driver = new FirefoxDriver(options);
+        WebDriver driver = new FirefoxDriver(options);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         Actions actions = new Actions(driver);
 
         try {
-            //  1. SauceDemo Login
+            // 1️⃣ SauceDemo Login
             driver.get("https://www.saucedemo.com/");
 
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user-name")))
@@ -43,9 +47,9 @@ WebDriver driver = new FirefoxDriver(options);
             driver.findElement(By.id("password")).sendKeys("secret_sauce");
             driver.findElement(By.id("login-button")).click();
 
-            System.out.println("SauceDemo login successful ");
+            System.out.println("SauceDemo login successful ✅");
 
-            //  2. Automation Exercise (new tab)
+            // 2️⃣ Automation Exercise (new tab)
             driver.switchTo().newWindow(WindowType.TAB);
             driver.get("https://automationexercise.com/products");
 
@@ -64,9 +68,9 @@ WebDriver driver = new FirefoxDriver(options);
             );
             viewCart.click();
 
-            System.out.println("Automation Exercise product added to cart ");
+            System.out.println("Product added to cart ✅");
 
-            // 3. Practice Test Automation (new tab)
+            // 3️⃣ Practice Test Automation (new tab)
             driver.switchTo().newWindow(WindowType.TAB);
             driver.get("https://practicetestautomation.com/practice-test-login/");
 
@@ -75,12 +79,12 @@ WebDriver driver = new FirefoxDriver(options);
             driver.findElement(By.id("password")).sendKeys("Password123");
             driver.findElement(By.id("submit")).click();
 
-            System.out.println("Practice Test Automation login successful ");
+            System.out.println("Practice login successful ✅");
 
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            driver.quit(); 
+            driver.quit();
         }
     }
 }
