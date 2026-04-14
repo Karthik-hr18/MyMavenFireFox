@@ -18,17 +18,30 @@ pipeline {
             }
         }
 
-       stage('Run Application') {
-    steps {
-        sh '''
-        Xvfb :99 -screen 0 1024x768x24 &
-        export DISPLAY=:99
-        export MOZ_HEADLESS=1
+        stage('Run Application') {
+            steps {
+                sh '''
+                # Kill any existing Xvfb (avoid conflicts)
+                pkill Xvfb || true
 
-        mvn exec:java -Dexec.mainClass="com.example.App"
-        '''
-    }
-}
+                # Start fresh virtual display
+                Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+                
+                # Wait for it to stabilize
+                sleep 5
+
+                # Export environment
+                export DISPLAY=:99
+                export MOZ_HEADLESS=1
+
+                # Debug (optional)
+                echo "DISPLAY=$DISPLAY"
+
+                # Run application
+                mvn exec:java -Dexec.mainClass="com.example.App"
+                '''
+            }
+        }
     }
 
     post {
